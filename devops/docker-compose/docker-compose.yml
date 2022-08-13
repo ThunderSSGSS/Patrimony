@@ -1,0 +1,37 @@
+version: "3"
+services:
+
+  #################____DATABASE___#################
+  db-server:
+    image: postgres:14.2-alpine
+    container_name: db-server
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: patrimony
+    volumes:
+      - ./data.database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+
+  #################____EMAIL_WORKER___############
+  property-management:
+    image: patrimony_property-management
+    build:
+      context: ../../src/property-management
+      dockerfile: Dockerfile
+    container_name: property-management
+    environment:
+      #____Email_Settings_____#
+      DATABASE_NAME: patrimony
+      DATABASE_USERNAME: example
+      DATABASE_PASSWORD: example
+      DATABASE_HOST: db-server
+      DATABASE_PORT: 5432
+    volumes:
+      - ../../src/property-management/app:/code/app
+    ports:
+      - 8080:80
+    depends_on:
+      - db-server
